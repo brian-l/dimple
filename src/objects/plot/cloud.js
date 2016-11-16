@@ -5,7 +5,6 @@
         // This is not a grouped plot meaning that one point is treated as one series value
         grouped: false,
         supportedAxes: ["z", "p"],
-        fontFamily: 'sans-serif',
 
         // Draw the chart
         draw: function (chart, series, duration) {
@@ -109,7 +108,7 @@
                 }))
                 .rotate(0)
                 .padding(5)
-                .font(this.fontFamily)
+                .font(series.fontFamily || 'sans-serif')
                 .fontSize(function(d) {
                     return sizeScale(d.value);
                 })
