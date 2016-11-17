@@ -97,7 +97,7 @@
                 theseShapes = series.shapes.data(chartData, function (d) { return d.key; });
             }
 
-            cloud.size([chart._xPixels() + chart._widthPixels(), chart._yPixels() + chart._heightPixels()])
+            cloud.size([chart._widthPixels(), chart._heightPixels()])
                 .words(chartData.map(function(d) {
                     return {
                         text: d.p,
