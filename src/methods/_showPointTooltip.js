@@ -1,7 +1,7 @@
     // Copyright: 2015 AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_showPointTooltip.js
-    dimple._showPointTooltip = function (e, shape, chart, series) {
+    dimple._showPointTooltip = function (e, shape, chart, series, mouse) {
 
         // The margin between the text and the box
         var textMargin = 5,

@@ -110,7 +110,10 @@
                     return classes.join(" ") + " " + dimple._createClass(c) + " " + chart.customClassList.pieSeries + " " + dimple._helpers.css(d, chart);
                 })
                 .attr("d", getArc)
-                .on("mouseover", function (e) { dimple._showBarTooltip(e, this, chart, series); })
+                .on("mouseover", function (e) {
+                    var mouse = d3.mouse(this);
+                    dimple._showBarTooltip(e, this, chart, series, {x: mouse[0], y: mouse[1]});
+                })
                 .on("mouseleave", function (e) { dimple._removeTooltip(e, this, chart, series); })
                 .call(function () {
                     if (!chart.noFormats) {

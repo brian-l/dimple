@@ -32,9 +32,10 @@
                 removed,
                 orderedSeriesArray,
                 onEnter = function () {
+                    var mouse = d3.mouse(this);
                     return function (e, shape, chart, series) {
                         d3.select(shape).style("opacity", 1);
-                        dimple._showPointTooltip(e, shape, chart, series);
+                        dimple._showPointTooltip(e, shape, chart, series, {x: mouse[0], y: mouse[1]});
                     };
                 },
                 onLeave = function (lineData) {

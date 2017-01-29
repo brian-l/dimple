@@ -49,7 +49,10 @@
                 .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._previousOrigin); })
                 .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._previousOrigin); })
                 .attr("r", 0)
-                .on("mouseover", function (e) { dimple._showPointTooltip(e, this, chart, series); })
+                .on("mouseover", function (e) {
+                    var mouse = d3.mouse(this);
+                    dimple._showPointTooltip(e, this, chart, series, {x: mouse[0], y: mouse[1]});
+                })
                 .on("mouseleave", function (e) { dimple._removeTooltip(e, this, chart, series); })
                 .call(function () {
                     if (!chart.noFormats) {

@@ -1,10 +1,13 @@
     // Copyright: 2015 AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_showBarTooltip.js
-    dimple._showBarTooltip = function (e, shape, chart, series) {
+    dimple._showBarTooltip = function (e, shape, chart, series, mouse) {
 
         // The margin between the text and the box
-        var textMargin = 5,
+        var chartBox = chart.svg.node().getBBox(),
+            chartWidth = parseFloat(chartBox.width),
+            chartHeight = parseFloat(chartBox.height),
+            textMargin = 5,
             // The margin between the ring and the popup
             popupMargin = 10,
            // The popup animation duration in ms
@@ -174,27 +177,29 @@
                 }
             });
 
+        var mx = mouse.x + 10,
+            my = mouse.y + 10;
 
         // Shift the popup around to avoid overlapping the svg edge
-        if (transformPoint(x + width + textMargin + popupMargin + w).x < parseFloat(chart.svg.node().getBBox().width)) {
+        if (transformPoint(mx + width + textMargin + popupMargin + w).x < chartWidth) {
             // Draw centre right
-            translateX = (x + width + textMargin + popupMargin);
-            translateY = (y + (height / 2) - ((yRunning - (h - textMargin)) / 2));
-        } else if (transformPoint(x - (textMargin + popupMargin + w)).x > 0) {
+            translateX = mx;
+            translateY = my;
+        } else if (transformPoint(mx - (textMargin + popupMargin + w)).x > 0) {
             // Draw centre left
-            translateX = (x - (textMargin + popupMargin + w));
-            translateY = (y + (height / 2) - ((yRunning - (h - textMargin)) / 2));
-        } else if (transformPoint(0, y + height + yRunning + popupMargin + textMargin).y < parseFloat(chart.svg.node().getBBox().height)) {
+            translateX = (mouse.x - (textMargin + popupMargin + w));
+            translateY = my;
+        } else if (transformPoint(0, y + height + yRunning + popupMargin + textMargin).y < chartHeight) {
             // Draw centre below
             translateX = (x + (width / 2) - (2 * textMargin + w) / 2);
             translateX = (translateX > 0 ? translateX : popupMargin);
-            translateX = (translateX + w < parseFloat(chart.svg.node().getBBox().width) ? translateX : parseFloat(chart.svg.node().getBBox().width) - w - popupMargin);
+            translateX = (translateX + w < chartWidth ? translateX : chartWidth - w - popupMargin);
             translateY = (y + height + 2 * textMargin);
         } else {
             // Draw centre above
             translateX = (x + (width / 2) - (2 * textMargin + w) / 2);
             translateX = (translateX > 0 ? translateX : popupMargin);
-            translateX = (translateX + w < parseFloat(chart.svg.node().getBBox().width) ? translateX : parseFloat(chart.svg.node().getBBox().width) - w - popupMargin);
+            translateX = (translateX + w < chartWidth ? translateX : chartWidth - w - popupMargin);
             translateY = (y - yRunning - (h - textMargin));
         }
         transformer = transformPoint(translateX, translateY);
