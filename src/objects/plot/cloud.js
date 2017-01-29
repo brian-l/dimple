@@ -5,7 +5,6 @@
         // This is not a grouped plot meaning that one point is treated as one series value
         grouped: false,
         supportedAxes: ["z", "p"],
-        fontFamily: 'sans-serif',
 
         // Draw the chart
         draw: function (chart, series, duration) {
@@ -101,7 +100,7 @@
                 theseShapes = series.shapes.data(chartData, function (d) { return d.key; });
             }
 
-            cloud.size([chart._xPixels() + chart._widthPixels(), chart._yPixels() + chart._heightPixels()])
+            cloud.size([chart._widthPixels(), chart._heightPixels()])
                 .words(chartData.map(function(d) {
                     return {
                         text: d.p,
@@ -112,7 +111,7 @@
                 }))
                 .rotate(0)
                 .padding(5)
-                .font(this.fontFamily)
+                .font(series.fontFamily || 'sans-serif')
                 .fontSize(function(d) {
                     return sizeScale(d.value);
                 })
