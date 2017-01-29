@@ -3166,9 +3166,10 @@
                 catCoord,
                 valCoord,
                 onEnter = function () {
+                    var mouse = d3.mouse(this);
                     return function (e, shape, chart, series) {
                         d3.select(shape).style("opacity", 1);
-                        dimple._showPointTooltip(e, shape, chart, series);
+                        dimple._showPointTooltip(e, shape, chart, series, {x: mouse[0], y: mouse[1]});
                     };
                 },
                 onLeave = function (lineData) {
@@ -3585,7 +3586,10 @@
                 })
                 .attr("width", function (d) { return (cat === "x" ?  dimple._helpers.width(d, chart, series) : 0); })
                 .attr("height", function (d) { return (cat === "y" ?  dimple._helpers.height(d, chart, series) : 0); })
-                .on("mouseover", function (e) { dimple._showBarTooltip(e, this, chart, series); })
+                .on("mouseover", function (e) {
+                    var mouse = d3.mouse(this);
+                    dimple._showBarTooltip(e, this, chart, series, {x: mouse[0], y: mouse[1]});
+                })
                 .on("mouseleave", function (e) { dimple._removeTooltip(e, this, chart, series); })
                 .call(function () {
                     if (!chart.noFormats) {
@@ -3690,7 +3694,10 @@
                 .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._previousOrigin); })
                 .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._previousOrigin); })
                 .attr("r", 0)
-                .on("mouseover", function (e) { dimple._showPointTooltip(e, this, chart, series); })
+                .on("mouseover", function (e) {
+                    var mouse = d3.mouse(this);
+                    dimple._showPointTooltip(e, this, chart, series, {x: mouse[0], y: mouse[1]});
+                })
                 .on("mouseleave", function (e) { dimple._removeTooltip(e, this, chart, series); })
                 .call(function () {
                     if (!chart.noFormats) {
@@ -3795,7 +3802,10 @@
                         .text(function(d) {
                             return d.p;
                         })
-                        .on("mouseover", function (e) { dimple._showBarTooltip(e, this, chart, series); })
+                        .on("mouseover", function (e) {
+                            var mouse = d3.mouse(this);
+                            dimple._showBarTooltip(e, this, chart, series, {x: mouse[0], y: mouse[1]});
+                        })
                         .on("mouseleave", function (e) { dimple._removeTooltip(e, this, chart, series); })
                         .call(function () {
                             if (!chart.noFormats) {
@@ -3879,9 +3889,10 @@
                 removed,
                 orderedSeriesArray,
                 onEnter = function () {
+                    var mouse = d3.mouse(this);
                     return function (e, shape, chart, series) {
                         d3.select(shape).style("opacity", 1);
-                        dimple._showPointTooltip(e, shape, chart, series);
+                        dimple._showPointTooltip(e, shape, chart, series, {x: mouse[0], y: mouse[1]});
                     };
                 },
                 onLeave = function (lineData) {
@@ -4199,7 +4210,10 @@
                     return classes.join(" ") + " " + dimple._createClass(c) + " " + chart.customClassList.pieSeries + " " + dimple._helpers.css(d, chart);
                 })
                 .attr("d", getArc)
-                .on("mouseover", function (e) { dimple._showBarTooltip(e, this, chart, series); })
+                .on("mouseover", function (e) {
+                    var mouse = d3.mouse(this);
+                    dimple._showBarTooltip(e, this, chart, series, {x: mouse[0], y: mouse[1]});
+                })
                 .on("mouseleave", function (e) { dimple._removeTooltip(e, this, chart, series); })
                 .call(function () {
                     if (!chart.noFormats) {
@@ -4241,6 +4255,7 @@
             series.shapes = theseShapes;
         }
     };
+
     // Copyright: 2015 AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_addGradient.js
@@ -5096,13 +5111,18 @@
     // Copyright: 2015 AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_showBarTooltip.js
-    dimple._showBarTooltip = function (e, shape, chart, series) {
+    dimple._showBarTooltip = function (e, shape, chart, series, mouse) {
 
         // The margin between the text and the box
-        var textMargin = 5,
+        var chartBox = chart.svg.node().getBBox(),
+            chartWidth = parseFloat(chartBox.width),
+            chartHeight = parseFloat(chartBox.height),
+            mx = mouse.x + 10,
+            my = mouse.y + 10,
+            textMargin = 5,
             // The margin between the ring and the popup
             popupMargin = 10,
-           // The popup animation duration in ms
+            // The popup animation duration in ms
             animDuration = 750,
             // Collect some facts about the highlighted bar
             selectedShape = d3.select(shape),
@@ -5269,44 +5289,49 @@
                 }
             });
 
-
         // Shift the popup around to avoid overlapping the svg edge
-        if (transformPoint(x + width + textMargin + popupMargin + w).x < parseFloat(chart.svg.node().getBBox().width)) {
+        if (transformPoint(mx + width + textMargin + popupMargin + w).x < chartWidth) {
             // Draw centre right
-            translateX = (x + width + textMargin + popupMargin);
-            translateY = (y + (height / 2) - ((yRunning - (h - textMargin)) / 2));
-        } else if (transformPoint(x - (textMargin + popupMargin + w)).x > 0) {
+            translateX = mx;
+            translateY = my;
+        } else if (transformPoint(mx - (textMargin + popupMargin + w)).x > 0) {
             // Draw centre left
-            translateX = (x - (textMargin + popupMargin + w));
-            translateY = (y + (height / 2) - ((yRunning - (h - textMargin)) / 2));
-        } else if (transformPoint(0, y + height + yRunning + popupMargin + textMargin).y < parseFloat(chart.svg.node().getBBox().height)) {
+            translateX = (mouse.x - (textMargin + popupMargin + w));
+            translateY = my;
+        } else if (transformPoint(0, y + height + yRunning + popupMargin + textMargin).y < chartHeight) {
             // Draw centre below
             translateX = (x + (width / 2) - (2 * textMargin + w) / 2);
             translateX = (translateX > 0 ? translateX : popupMargin);
-            translateX = (translateX + w < parseFloat(chart.svg.node().getBBox().width) ? translateX : parseFloat(chart.svg.node().getBBox().width) - w - popupMargin);
+            translateX = (translateX + w < chartWidth ? translateX : chartWidth - w - popupMargin);
             translateY = (y + height + 2 * textMargin);
         } else {
             // Draw centre above
             translateX = (x + (width / 2) - (2 * textMargin + w) / 2);
             translateX = (translateX > 0 ? translateX : popupMargin);
-            translateX = (translateX + w < parseFloat(chart.svg.node().getBBox().width) ? translateX : parseFloat(chart.svg.node().getBBox().width) - w - popupMargin);
+            translateX = (translateX + w < chartWidth ? translateX : chartWidth - w - popupMargin);
             translateY = (y - yRunning - (h - textMargin));
         }
         transformer = transformPoint(translateX, translateY);
         t.attr("transform", "translate(" + transformer.x + " , " + transformer.y + ")");
     };
+
     // Copyright: 2015 AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_showPointTooltip.js
-    dimple._showPointTooltip = function (e, shape, chart, series) {
+    dimple._showPointTooltip = function (e, shape, chart, series, mouse) {
 
         // The margin between the text and the box
-        var textMargin = 5,
-        // The margin between the ring and the popup
+        var chartBox = chart.svg.node().getBBox(),
+            chartWidth = parseFloat(chartBox.width),
+            chartHeight = parseFloat(chartBox.height),
+            mx = mouse.x + 10,
+            my = mouse.y + 10,
+            textMargin = 5,
+            // The margin between the ring and the popup
             popupMargin = 10,
-        // The popup animation duration in ms
+            // The popup animation duration in ms
             animDuration = 750,
-        // Collect some facts about the highlighted bubble
+            // Collect some facts about the highlighted bubble
             selectedShape = d3.select(shape),
             cx = parseFloat(selectedShape.attr("cx")),
             cy = parseFloat(selectedShape.attr("cy")),
@@ -5314,21 +5339,21 @@
             opacity = dimple._helpers.opacity(e, chart, series),
             fill = selectedShape.attr("stroke"),
             dropDest = series._dropLineOrigin(),
-        // Fade the popup stroke mixing the shape fill with 60% white
+            // Fade the popup stroke mixing the shape fill with 60% white
             popupStrokeColor = d3.rgb(
                 d3.rgb(fill).r + 0.6 * (255 - d3.rgb(fill).r),
                 d3.rgb(fill).g + 0.6 * (255 - d3.rgb(fill).g),
                 d3.rgb(fill).b + 0.6 * (255 - d3.rgb(fill).b)
             ),
-        // Fade the popup fill mixing the shape fill with 80% white
+            // Fade the popup fill mixing the shape fill with 80% white
             popupFillColor = d3.rgb(
                 d3.rgb(fill).r + 0.8 * (255 - d3.rgb(fill).r),
                 d3.rgb(fill).g + 0.8 * (255 - d3.rgb(fill).g),
                 d3.rgb(fill).b + 0.8 * (255 - d3.rgb(fill).b)
             ),
-        // The running y value for the text elements
+            // The running y value for the text elements
             y = 0,
-        // The maximum bounds of the text elements
+            // The maximum bounds of the text elements
             w = 0,
             h = 0,
             t,
@@ -5473,25 +5498,25 @@
             });
 
         // Shift the popup around to avoid overlapping the svg edge
-        if (cx + r + textMargin + popupMargin + w < parseFloat(chart.svg.node().getBBox().width)) {
+        if (mx + r + textMargin + popupMargin + w < chartWidth) {
             // Draw centre right
-            translateX = (cx + r + textMargin + popupMargin);
-            translateY = (cy - ((y - (h - textMargin)) / 2));
-        } else if (cx - r - (textMargin + popupMargin + w) > 0) {
+            translateX = mx;
+            translateY = my;
+        } else if (mx - r - (textMargin + popupMargin + w) > 0) {
             // Draw centre left
-            translateX = (cx - r - (textMargin + popupMargin + w));
-            translateY = (cy - ((y - (h - textMargin)) / 2));
-        } else if (cy + r + y + popupMargin + textMargin < parseFloat(chart.svg.node().getBBox().height)) {
+            translateX = (mouse.x - r - (textMargin + popupMargin + w));
+            translateY = my;
+        } else if (cy + r + y + popupMargin + textMargin < chartHeight) {
             // Draw centre below
             translateX = (cx - (2 * textMargin + w) / 2);
             translateX = (translateX > 0 ? translateX : popupMargin);
-            translateX = (translateX + w < parseFloat(chart.svg.node().getBBox().width) ? translateX : parseFloat(chart.svg.node().getBBox().width) - w - popupMargin);
+            translateX = (translateX + w < chartWidth ? translateX : chartWidth - w - popupMargin);
             translateY = (cy + r + 2 * textMargin);
         } else {
             // Draw centre above
             translateX = (cx - (2 * textMargin + w) / 2);
             translateX = (translateX > 0 ? translateX : popupMargin);
-            translateX = (translateX + w < parseFloat(chart.svg.node().getBBox().width) ? translateX : parseFloat(chart.svg.node().getBBox().width) - w - popupMargin);
+            translateX = (translateX + w < chartWidth ? translateX : chartWidth - w - popupMargin);
             translateY = (cy - y - (h - textMargin));
         }
         t.attr("transform", "translate(" + translateX + " , " + translateY + ")");

@@ -4,12 +4,17 @@
     dimple._showPointTooltip = function (e, shape, chart, series, mouse) {
 
         // The margin between the text and the box
-        var textMargin = 5,
-        // The margin between the ring and the popup
+        var chartBox = chart.svg.node().getBBox(),
+            chartWidth = parseFloat(chartBox.width),
+            chartHeight = parseFloat(chartBox.height),
+            mx = mouse.x + 10,
+            my = mouse.y + 10,
+            textMargin = 5,
+            // The margin between the ring and the popup
             popupMargin = 10,
-        // The popup animation duration in ms
+            // The popup animation duration in ms
             animDuration = 750,
-        // Collect some facts about the highlighted bubble
+            // Collect some facts about the highlighted bubble
             selectedShape = d3.select(shape),
             cx = parseFloat(selectedShape.attr("cx")),
             cy = parseFloat(selectedShape.attr("cy")),
@@ -17,21 +22,21 @@
             opacity = dimple._helpers.opacity(e, chart, series),
             fill = selectedShape.attr("stroke"),
             dropDest = series._dropLineOrigin(),
-        // Fade the popup stroke mixing the shape fill with 60% white
+            // Fade the popup stroke mixing the shape fill with 60% white
             popupStrokeColor = d3.rgb(
                 d3.rgb(fill).r + 0.6 * (255 - d3.rgb(fill).r),
                 d3.rgb(fill).g + 0.6 * (255 - d3.rgb(fill).g),
                 d3.rgb(fill).b + 0.6 * (255 - d3.rgb(fill).b)
             ),
-        // Fade the popup fill mixing the shape fill with 80% white
+            // Fade the popup fill mixing the shape fill with 80% white
             popupFillColor = d3.rgb(
                 d3.rgb(fill).r + 0.8 * (255 - d3.rgb(fill).r),
                 d3.rgb(fill).g + 0.8 * (255 - d3.rgb(fill).g),
                 d3.rgb(fill).b + 0.8 * (255 - d3.rgb(fill).b)
             ),
-        // The running y value for the text elements
+            // The running y value for the text elements
             y = 0,
-        // The maximum bounds of the text elements
+            // The maximum bounds of the text elements
             w = 0,
             h = 0,
             t,
@@ -176,25 +181,25 @@
             });
 
         // Shift the popup around to avoid overlapping the svg edge
-        if (cx + r + textMargin + popupMargin + w < parseFloat(chart.svg.node().getBBox().width)) {
+        if (mx + r + textMargin + popupMargin + w < chartWidth) {
             // Draw centre right
-            translateX = (cx + r + textMargin + popupMargin);
-            translateY = (cy - ((y - (h - textMargin)) / 2));
-        } else if (cx - r - (textMargin + popupMargin + w) > 0) {
+            translateX = mx;
+            translateY = my;
+        } else if (mx - r - (textMargin + popupMargin + w) > 0) {
             // Draw centre left
-            translateX = (cx - r - (textMargin + popupMargin + w));
-            translateY = (cy - ((y - (h - textMargin)) / 2));
-        } else if (cy + r + y + popupMargin + textMargin < parseFloat(chart.svg.node().getBBox().height)) {
+            translateX = (mouse.x - r - (textMargin + popupMargin + w));
+            translateY = my;
+        } else if (cy + r + y + popupMargin + textMargin < chartHeight) {
             // Draw centre below
             translateX = (cx - (2 * textMargin + w) / 2);
             translateX = (translateX > 0 ? translateX : popupMargin);
-            translateX = (translateX + w < parseFloat(chart.svg.node().getBBox().width) ? translateX : parseFloat(chart.svg.node().getBBox().width) - w - popupMargin);
+            translateX = (translateX + w < chartWidth ? translateX : chartWidth - w - popupMargin);
             translateY = (cy + r + 2 * textMargin);
         } else {
             // Draw centre above
             translateX = (cx - (2 * textMargin + w) / 2);
             translateX = (translateX > 0 ? translateX : popupMargin);
-            translateX = (translateX + w < parseFloat(chart.svg.node().getBBox().width) ? translateX : parseFloat(chart.svg.node().getBBox().width) - w - popupMargin);
+            translateX = (translateX + w < chartWidth ? translateX : chartWidth - w - popupMargin);
             translateY = (cy - y - (h - textMargin));
         }
         t.attr("transform", "translate(" + translateX + " , " + translateY + ")");

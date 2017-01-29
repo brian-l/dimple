@@ -7,10 +7,12 @@
         var chartBox = chart.svg.node().getBBox(),
             chartWidth = parseFloat(chartBox.width),
             chartHeight = parseFloat(chartBox.height),
+            mx = mouse.x + 10,
+            my = mouse.y + 10,
             textMargin = 5,
             // The margin between the ring and the popup
             popupMargin = 10,
-           // The popup animation duration in ms
+            // The popup animation duration in ms
             animDuration = 750,
             // Collect some facts about the highlighted bar
             selectedShape = d3.select(shape),
@@ -176,9 +178,6 @@
                         .style("opacity", 0.95);
                 }
             });
-
-        var mx = mouse.x + 10,
-            my = mouse.y + 10;
 
         // Shift the popup around to avoid overlapping the svg edge
         if (transformPoint(mx + width + textMargin + popupMargin + w).x < chartWidth) {
